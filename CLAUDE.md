@@ -257,21 +257,311 @@ mcp__playwright__browser_console_messages();
 - Validation rule enforcement
 - Error state handling
 
-## Git Strategy
+## Git Strategy & Best Practices
 
-**Never work directly on main branch.** Always use feature branches:
+### Branch Structure
+This project uses **Git Flow** with two main branches:
+- **`main`**: Production-ready code only. Protected branch that requires pull requests.
+- **`develop`**: Active development branch where features are integrated and tested.
+
+### Branch Protection Rules
+- **`main` branch is protected**:
+  - Requires pull request reviews
+  - No direct pushes allowed
+  - Must pass all CI/CD checks
+  - Requires linear history (squash and merge)
+
+### Development Workflow
+
+#### 1. Starting New Work
+**ALWAYS** create feature branches from `develop`:
 
 ```bash
+# Switch to develop and pull latest changes
+git checkout develop
+git pull origin develop
+
+# Create feature branch with descriptive name
 git checkout -b feature/cost-center-setup
-git checkout -b feature/time-entry-forms
+git checkout -b feature/time-entry-validation
 git checkout -b bugfix/percentage-calculation
+git checkout -b chore/update-dependencies
 ```
 
-Use conventional commit format:
+#### 2. Branch Naming Conventions
+Use prefixes to categorize your work:
+- **`feature/`** - New functionality or enhancements
+- **`bugfix/`** - Bug fixes
+- **`hotfix/`** - Critical fixes that need immediate deployment
+- **`chore/`** - Maintenance tasks (dependency updates, refactoring)
+- **`docs/`** - Documentation updates
+- **`test/`** - Adding or updating tests
+
+Examples:
+```bash
+feature/user-authentication
+feature/cost-center-management
+bugfix/time-calculation-error
+hotfix/security-vulnerability
+chore/prisma-schema-update
+docs/api-endpoint-documentation
+test/validation-coverage
 ```
-feat(time-entry): add real-time hours calculation
-fix(validation): ensure total percentages equal 100%
-docs(api): update cost center endpoint documentation
+
+#### 3. Conventional Commit Messages
+Use semantic commit messages following the [Conventional Commits](https://conventionalcommits.org/) specification:
+
+```bash
+# Format: <type>(<scope>): <description>
+# 
+# Types: feat, fix, docs, style, refactor, test, chore
+# Scope: component, module, or feature area (optional)
+# Description: imperative mood, lowercase, no period
+
+# Examples:
+feat(auth): implement OAuth2 Google provider
+fix(validation): ensure cost center percentages sum to 100%
+docs(api): add endpoint documentation for time entries
+style(ui): update button hover states for consistency  
+refactor(utils): extract time calculation functions
+test(validation): add comprehensive form validation tests
+chore(deps): update Nuxt to latest version
+```
+
+#### 4. Committing Changes
+Make frequent, small commits with clear messages:
+
+```bash
+# Stage specific files (preferred over git add .)
+git add src/components/CostCenterForm.vue
+git add src/utils/validation.ts
+
+# Commit with conventional format
+git commit -m "feat(cost-centers): add percentage validation with real-time feedback"
+
+# Push feature branch
+git push -u origin feature/cost-center-setup
+```
+
+#### 5. Pull Request Process
+
+**Before creating PR:**
+```bash
+# Ensure your branch is up to date with develop
+git checkout develop
+git pull origin develop
+git checkout feature/your-feature-name
+git rebase develop  # or git merge develop if preferred
+
+# Run tests and linting
+npm run lint
+npm run type-check
+npm run test  # if tests exist
+npm run build  # ensure build succeeds
+```
+
+**Creating Pull Request:**
+1. Push your branch: `git push origin feature/your-feature-name`
+2. Go to GitHub and create PR from your feature branch → `develop`
+3. Use descriptive PR title and description
+4. Include:
+   - Summary of changes
+   - Testing performed
+   - Screenshots for UI changes
+   - Breaking changes (if any)
+   - Related issue numbers
+
+**PR Template Example:**
+```markdown
+## Summary
+Brief description of what this PR accomplishes.
+
+## Changes Made
+- [ ] Added cost center percentage validation
+- [ ] Implemented real-time feedback for form errors
+- [ ] Updated TypeScript interfaces
+
+## Testing
+- [ ] Manual testing completed
+- [ ] Form validation works correctly
+- [ ] No console errors
+- [ ] Responsive design verified
+
+## Screenshots
+(For UI changes - include before/after screenshots)
+
+## Breaking Changes
+None / Describe any breaking changes
+
+Closes #issue-number
+```
+
+#### 6. Release Process
+
+**Merging to Main:**
+```bash
+# After PR approval and merge to develop
+git checkout develop
+git pull origin develop
+
+# Create release branch for final testing
+git checkout -b release/v1.2.0
+
+# Final testing, version bumps, changelog updates
+npm version patch  # or minor/major
+git push origin release/v1.2.0
+
+# Create PR: release/v1.2.0 → main
+# After approval, merge to main
+# Create GitHub release with tag
+```
+
+### Git Hooks & Automation
+
+#### Pre-commit Hooks
+Configure automated checks before commits:
+
+```bash
+# Install husky for git hooks
+npm install --save-dev husky lint-staged
+
+# Add to package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": ["eslint --fix", "git add"],
+    "*.{css,scss}": ["stylelint --fix", "git add"],
+    "*.{json,md}": ["prettier --write", "git add"]
+  }
+}
+```
+
+#### Automated Checks
+- Lint and format code before commit
+- Run type checking
+- Validate conventional commit messages
+- Check for secrets or sensitive data
+
+### Emergency Procedures
+
+#### Hotfix Workflow
+For critical production bugs:
+
+```bash
+# Create hotfix from main (not develop)
+git checkout main
+git pull origin main
+git checkout -b hotfix/critical-bug-fix
+
+# Make minimal fix
+git add .
+git commit -m "hotfix(critical): fix data corruption in time calculations"
+
+# Push and create PR to main
+git push -u origin hotfix/critical-bug-fix
+
+# After merge to main, also merge to develop
+git checkout develop
+git merge main
+```
+
+#### Rollback Procedures
+```bash
+# If main branch needs rollback
+git checkout main
+git log --oneline -10  # Find commit to revert to
+git revert <commit-hash>  # Preferred: creates new commit
+# OR
+git reset --hard <commit-hash>  # DANGER: rewrites history
+git push --force-with-lease origin main  # Use with extreme caution
+```
+
+### Git Configuration
+Set up your Git environment for this project:
+
+```bash
+# Configure user for this repository
+git config user.name "Your Name"
+git config user.email "your.email@nebraskachildren.org"
+
+# Set up useful aliases
+git config alias.co checkout
+git config alias.br branch
+git config alias.ci commit
+git config alias.st status
+git config alias.unstage 'reset HEAD --'
+git config alias.last 'log -1 HEAD'
+git config alias.visual '!gitk'
+
+# Configure line endings (important for Windows)
+git config core.autocrlf true
+
+# Set default branch name
+git config init.defaultBranch main
+
+# Configure pull behavior
+git config pull.rebase false  # merge (default)
+```
+
+### Repository Maintenance
+
+#### Regular Cleanup
+```bash
+# Clean up merged branches
+git branch --merged develop | grep -v "main\|develop" | xargs -n 1 git branch -d
+
+# Prune remote branches
+git remote prune origin
+
+# Garbage collect
+git gc --prune=now
+```
+
+#### Security Best Practices
+- **Never commit secrets**, use environment variables
+- Use `.gitignore` for sensitive files
+- Regularly audit commit history for accidentally committed secrets
+- Use signed commits for additional security: `git config commit.gpgsign true`
+
+### Git Commands Quick Reference
+
+```bash
+# Daily workflow
+git status                      # Check current state
+git add <file>                 # Stage specific files  
+git commit -m "msg"            # Commit with message
+git push origin <branch>       # Push branch to remote
+git pull origin develop        # Update from remote
+
+# Branching
+git checkout -b feature/name   # Create and switch to new branch
+git checkout develop           # Switch to existing branch
+git branch -d feature/name     # Delete local branch
+git push -d origin branch-name # Delete remote branch
+
+# History and inspection
+git log --oneline -10          # View recent commits
+git diff                       # Show unstaged changes
+git diff --staged              # Show staged changes
+git blame <file>               # Show who changed what
+
+# Troubleshooting
+git stash                      # Temporarily save changes
+git stash pop                  # Restore stashed changes
+git reset HEAD~1               # Undo last commit (keep changes)
+git reset --hard HEAD~1        # Undo last commit (lose changes)
+git revert <commit-hash>       # Create new commit that undoes changes
+```
+
+**Remember**: When in doubt, create a backup branch before making major changes:
+```bash
+git checkout -b backup/before-major-change
+git checkout original-branch
+# Now make your risky changes safely
 ```
 
 ## Current Project Structure
