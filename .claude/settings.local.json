@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__archon__health_check",
+      "mcp__archon__create_project",
+      "mcp__archon__perform_rag_query",
+      "mcp__archon__search_code_examples",
+      "Bash(npx nuxi:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(tree:*)",
+      "mcp__archon__create_task",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

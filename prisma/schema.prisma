@@ -1,0 +1,84 @@
+// Prisma schema for Paylocity Allocation Assistant
+// Cost center allocation tracking system for Nebraska Children
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isVerified  Boolean  @default(false)
+
+  // Relations
+  costCenters CostCenter[]
+  payPeriods  PayPeriod[]
+  timeEntries TimeEntry[]
+
+  @@map("users")
+}
+
+model CostCenter {
+  id         String @id @default(cuid())
+  division   Int
+  funding    Int
+  program    Int
+  percentage Float
+  userId     String?
+
+  // Relations
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timeEntries TimeEntry[]
+
+  // Indexes
+  @@unique([division, funding, program, userId])
+  @@map("cost_centers")
+}
+
+model PayPeriod {
+  id         String   @id @default(cuid())
+  startDate  DateTime
+  endDate    DateTime
+  totalHours Float
+  userId     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timeEntries TimeEntry[]
+
+  @@map("pay_periods")
+}
+
+model TimeEntry {
+  id              String   @id @default(cuid())
+  date            DateTime
+  startTime       String   // HH:MM format
+  endTime         String   // HH:MM format
+  calculatedHours Float
+  costCenterId    String
+  payPeriodId     String
+  userId          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  costCenter CostCenter @relation(fields: [costCenterId], references: [id], onDelete: Cascade)
+  payPeriod  PayPeriod  @relation(fields: [payPeriodId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([date])
+  @@index([payPeriodId])
+  @@index([costCenterId])
+  @@map("time_entries")
+}
