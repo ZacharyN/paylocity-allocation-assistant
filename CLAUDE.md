@@ -686,13 +686,13 @@ The existing payroll software cannot provide real-time feedback on whether logge
 **Option 1: Nuxt 4 (Full-stack)**
 - Frontend: Vue 3 + Nuxt 4
 - Backend: Nuxt server API routes
-- Database: SQLite or PostgreSQL
+- Database: PostgreSQL
 - Authentication: Nuxt Auth module
 
 **Option 2: FastAPI + Frontend**
 - Backend: FastAPI (Python)
-- Frontend: Vue 3/Nuxt 4 or React
-- Database: PostgreSQL or SQLite
+- Frontend: Vue 3/Nuxt 4 
+- Database: PostgreSQL
 - Authentication: FastAPI-Users or custom JWT
 
 ### 3.2 Recommended Stack
