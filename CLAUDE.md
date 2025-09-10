@@ -695,12 +695,6 @@ The existing payroll software cannot provide real-time feedback on whether logge
 - Database: PostgreSQL or SQLite
 - Authentication: FastAPI-Users or custom JWT
 
-**Option 3: Django + Frontend**
-- Backend: Django + Django REST Framework
-- Frontend: Vue 3/Nuxt 4 or React
-- Database: PostgreSQL or SQLite
-- Authentication: Django built-in + JWT
-
 ### 3.2 Recommended Stack
 **Nuxt 4 Full-stack** for rapid development and deployment simplicity.
 
