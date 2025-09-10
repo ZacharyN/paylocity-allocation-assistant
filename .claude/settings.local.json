@@ -13,7 +13,11 @@
       "Bash(git add:*)",
       "Bash(git checkout:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "mcp__archon__list_tasks",
+      "mcp__archon__get_task",
+      "mcp__archon__update_task",
+      "Bash(del test-db.js)"
     ],
     "deny": [],
     "ask": []
