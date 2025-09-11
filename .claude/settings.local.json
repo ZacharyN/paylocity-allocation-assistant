@@ -10,7 +10,9 @@
       "Bash(npx prisma:*)",
       "Bash(tree:*)",
       "mcp__archon__create_task",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []
