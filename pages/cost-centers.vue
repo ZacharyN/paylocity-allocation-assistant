@@ -10,15 +10,9 @@
         </p>
       </div>
 
-      <!-- Cost Center Form will be inserted here -->
+      <!-- Cost Center Form -->
       <div class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Add New Cost Center</h2>
-        <!-- Form component placeholder -->
-        <UCard>
-          <div class="p-4 text-center text-gray-500">
-            Cost Center Form Component (Coming Soon)
-          </div>
-        </UCard>
+        <CostCenterForm @submit="handleCostCenterSubmit" @error="handleCostCenterError" />
       </div>
 
       <!-- Cost Center List will be inserted here -->
@@ -66,4 +60,40 @@ useSeoMeta({
   title: 'Cost Center Setup - Paylocity Allocation Assistant',
   description: 'Configure your cost centers and allocation percentages'
 })
+
+const toast = useToast()
+
+// Handle cost center form submission
+async function handleCostCenterSubmit(costCenterData: { 
+  division: number
+  funding: number  
+  program: number
+  percentage: number 
+}) {
+  try {
+    // TODO: Replace with actual API call
+    console.log('Cost center data:', costCenterData)
+    
+    // For now, just show success message
+    // Later this will call the API to save the cost center
+    
+  } catch (error) {
+    console.error('Failed to create cost center:', error)
+    toast.add({
+      title: 'Error',
+      description: 'Failed to create cost center. Please try again.',
+      color: 'error'
+    })
+  }
+}
+
+// Handle cost center form errors
+function handleCostCenterError(error: any) {
+  console.error('Cost center form error:', error)
+  toast.add({
+    title: 'Form Error',
+    description: 'Please check your form inputs and try again.',
+    color: 'error'
+  })
+}
 </script>

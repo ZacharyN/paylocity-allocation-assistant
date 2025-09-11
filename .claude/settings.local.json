@@ -24,7 +24,8 @@
       "Bash(rm:*)",
       "Bash(mcp__archon__health_check:*)",
       "Bash(npm run dev:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
