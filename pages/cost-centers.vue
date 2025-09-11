@@ -15,22 +15,15 @@
         <CostCenterForm @submit="handleCostCenterSubmit" @error="handleCostCenterError" />
       </div>
 
-      <!-- Cost Center List will be inserted here -->
+      <!-- Cost Center List -->
       <div class="mb-8">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold">Current Cost Centers</h2>
-          <div class="text-sm text-gray-500">
-            Total Allocation: <span class="font-semibold">0%</span>
-          </div>
-        </div>
-        <!-- List component placeholder -->
-        <UCard>
-          <div class="p-8 text-center text-gray-500">
-            <UIcon name="i-lucide-plus-circle" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p class="text-lg mb-2">No cost centers configured yet</p>
-            <p class="text-sm">Add your first cost center above to get started</p>
-          </div>
-        </UCard>
+        <CostCenterList 
+          ref="costCenterListRef"
+          :user-id="userId"
+          :refresh="refreshList"
+          @update="handleCostCenterUpdate"
+          @percentage-change="handlePercentageChange"
+        />
       </div>
 
       <!-- Navigation -->
@@ -44,9 +37,10 @@
         </UButton>
         <UButton 
           color="primary"
-          disabled
+          :disabled="!canProceed"
           icon="i-lucide-arrow-right"
           trailing
+          :title="canProceed ? 'Continue to Pay Periods' : 'Total allocation must equal 100% to proceed'"
         >
           Continue to Pay Periods
         </UButton>
@@ -56,12 +50,20 @@
 </template>
 
 <script setup lang="ts">
+import type { CostCenter } from '~/types'
+
 useSeoMeta({
   title: 'Cost Center Setup - Paylocity Allocation Assistant',
   description: 'Configure your cost centers and allocation percentages'
 })
 
+// Reactive state
 const toast = useToast()
+const userId = ref('default-user') // TODO: Replace with actual user ID from auth
+const costCenterListRef = ref()
+const refreshList = ref(false)
+const totalPercentage = ref(0)
+const canProceed = computed(() => totalPercentage.value === 100)
 
 // Handle cost center form submission
 async function handleCostCenterSubmit(costCenterData: { 
@@ -71,11 +73,21 @@ async function handleCostCenterSubmit(costCenterData: {
   percentage: number 
 }) {
   try {
-    // TODO: Replace with actual API call
+    // TODO: Replace with actual API call to save cost center
+    // const response = await $fetch('/api/cost-centers', {
+    //   method: 'POST',
+    //   body: {
+    //     ...costCenterData,
+    //     userId: userId.value
+    //   }
+    // })
+    
     console.log('Cost center data:', costCenterData)
     
-    // For now, just show success message
-    // Later this will call the API to save the cost center
+    // Add to the list component
+    if (costCenterListRef.value) {
+      costCenterListRef.value.addCostCenter(costCenterData)
+    }
     
   } catch (error) {
     console.error('Failed to create cost center:', error)
@@ -95,5 +107,16 @@ function handleCostCenterError(error: any) {
     description: 'Please check your form inputs and try again.',
     color: 'error'
   })
+}
+
+// Handle cost center list updates
+function handleCostCenterUpdate(costCenters: CostCenter[]) {
+  console.log('Cost centers updated:', costCenters)
+  // Additional handling if needed
+}
+
+// Handle percentage changes from the list
+function handlePercentageChange(total: number) {
+  totalPercentage.value = total
 }
 </script>
