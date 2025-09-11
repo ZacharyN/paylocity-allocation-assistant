@@ -69,7 +69,7 @@
         label="Allocation Percentage" 
         name="percentage"
         required
-        help="Percentage of time allocated to this cost center"
+        :help="percentageHelp"
       >
         <div class="flex items-center gap-2">
           <UInput 
@@ -77,11 +77,42 @@
             type="number"
             placeholder="0"
             min="0"
-            max="100"
+            :max="maxPercentage"
             step="0.01"
             class="flex-1"
           />
           <span class="text-gray-500 text-sm">%</span>
+        </div>
+        
+        <!-- Real-time validation feedback -->
+        <div v-if="state.percentage && currentTotal !== undefined" class="mt-2">
+          <div 
+            class="text-sm p-2 rounded-md"
+            :class="{
+              'text-green-700 bg-green-50 dark:text-green-400 dark:bg-green-900/20': projectedTotal === 100,
+              'text-orange-700 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/20': projectedTotal > 0 && projectedTotal < 100,
+              'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-900/20': projectedTotal > 100
+            }"
+          >
+            <div class="flex items-center gap-2">
+              <UIcon 
+                :name="projectedTotal === 100 ? 'i-lucide-check-circle' : projectedTotal > 100 ? 'i-lucide-alert-triangle' : 'i-lucide-info'"
+                class="w-4 h-4"
+              />
+              <span>
+                Current total: {{ currentTotal.toFixed(1) }}% + {{ state.percentage }}% = {{ projectedTotal.toFixed(1) }}%
+              </span>
+            </div>
+            <div v-if="projectedTotal > 100" class="mt-1 text-xs">
+              This would exceed 100% by {{ (projectedTotal - 100).toFixed(1) }}%
+            </div>
+            <div v-else-if="projectedTotal < 100" class="mt-1 text-xs">
+              {{ (100 - projectedTotal).toFixed(1) }}% remaining after this addition
+            </div>
+            <div v-else class="mt-1 text-xs">
+              Perfect! This will complete your allocation.
+            </div>
+          </div>
         </div>
       </UFormField>
 
@@ -118,6 +149,17 @@
 import Joi from 'joi'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+// Props
+interface Props {
+  currentTotal?: number
+  maxAllowedPercentage?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  currentTotal: 0,
+  maxAllowedPercentage: 100
+})
+
 // Define the form state type
 interface CostCenterFormState {
   division: number | undefined
@@ -126,8 +168,28 @@ interface CostCenterFormState {
   percentage: number | undefined
 }
 
-// Validation schema using Joi
-const schema = Joi.object({
+// Computed properties
+const currentTotal = computed(() => props.currentTotal || 0)
+const projectedTotal = computed(() => {
+  const percentage = state.percentage || 0
+  return currentTotal.value + percentage
+})
+const maxPercentage = computed(() => {
+  return Math.min(props.maxAllowedPercentage, 100 - currentTotal.value)
+})
+const percentageHelp = computed(() => {
+  if (currentTotal.value === 0) {
+    return "Percentage of time allocated to this cost center"
+  }
+  const remaining = 100 - currentTotal.value
+  if (remaining <= 0) {
+    return "All allocation has been used. Edit existing cost centers to add more."
+  }
+  return `${remaining.toFixed(1)}% remaining available for allocation`
+})
+
+// Enhanced validation schema with dynamic max percentage
+const schema = computed(() => Joi.object({
   division: Joi.number()
     .integer()
     .min(0)
@@ -163,16 +225,16 @@ const schema = Joi.object({
     }),
   percentage: Joi.number()
     .min(0.01)
-    .max(100)
+    .max(maxPercentage.value || 100)
     .precision(2)
     .required()
     .messages({
       'number.base': 'Percentage must be a number',
       'number.min': 'Percentage must be greater than 0',
-      'number.max': 'Percentage cannot exceed 100%',
+      'number.max': `Percentage cannot exceed ${maxPercentage.value?.toFixed(1) || 100}% (remaining allocation)`,
       'any.required': 'Percentage is required'
     })
-})
+}))
 
 // Form state
 const state = reactive<CostCenterFormState>({

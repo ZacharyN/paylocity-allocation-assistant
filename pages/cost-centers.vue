@@ -12,7 +12,11 @@
 
       <!-- Cost Center Form -->
       <div class="mb-8">
-        <CostCenterForm @submit="handleCostCenterSubmit" @error="handleCostCenterError" />
+        <CostCenterForm 
+          :current-total="totalPercentage"
+          @submit="handleCostCenterSubmit" 
+          @error="handleCostCenterError" 
+        />
       </div>
 
       <!-- Cost Center List -->
