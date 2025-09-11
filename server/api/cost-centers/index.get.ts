@@ -1,6 +1,4 @@
-import { PrismaClient } from '~/app/generated/prisma';
-
-const prisma = new PrismaClient();
+import prisma from '../../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -18,9 +16,11 @@ export default defineEventHandler(async (event) => {
       where: {
         userId
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: [
+        { division: 'asc' },
+        { funding: 'asc' },
+        { program: 'asc' }
+      ]
     });
     
     return costCenters;

@@ -21,7 +21,10 @@
       "mcp__archon__update_task",
       "Bash(del test-db.js)",
       "Bash(env)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mcp__archon__health_check:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
