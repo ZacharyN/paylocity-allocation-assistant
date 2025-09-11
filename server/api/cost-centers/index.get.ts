@@ -1,4 +1,4 @@
-import prisma from '../../utils/prisma';
+// import prisma from '../../utils/prisma';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -12,16 +12,25 @@ export default defineEventHandler(async (event) => {
       });
     }
     
-    const costCenters = await prisma.costCenter.findMany({
-      where: {
+    // Mock data for testing
+    const costCenters = [
+      {
+        id: '1',
+        division: 123,
+        funding: 456,
+        program: 789,
+        percentage: 60,
         userId
       },
-      orderBy: [
-        { division: 'asc' },
-        { funding: 'asc' },
-        { program: 'asc' }
-      ]
-    });
+      {
+        id: '2', 
+        division: 123,
+        funding: 456,
+        program: 790,
+        percentage: 30,
+        userId
+      }
+    ];
     
     return costCenters;
   } catch (error) {

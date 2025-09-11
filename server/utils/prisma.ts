@@ -1,4 +1,4 @@
-import { PrismaClient } from 'F:/PyCharm-Projects/cost-center-allocator/app/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 let prisma: PrismaClient;
 
