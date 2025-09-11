@@ -13,6 +13,7 @@
   "dependencies": {
     "@nuxt/ui": "^3.3.3",
     "@prisma/client": "^6.16.0",
+    "joi": "^17.13.3",
     "nuxt": "^4.1.1",
     "prisma": "^6.16.0",
     "vue": "^3.5.21",
