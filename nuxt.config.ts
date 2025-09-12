@@ -8,5 +8,8 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   colorMode: {
     preference: 'light'
+  },
+  tailwindcss: {
+    configPath: './tailwind.config.ts'
   }
 })
