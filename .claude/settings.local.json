@@ -35,7 +35,8 @@
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_resize",
       "mcp__playwright__browser_evaluate",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []
